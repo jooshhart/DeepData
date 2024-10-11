@@ -21,8 +21,8 @@ const Header = () => {
          </div>
 
          <div style={styles.userContainer}>
-            <Link to="/profile">
-               <FaUserCircle />
+            <Link to="/profile" style={styles.userLink}>
+               <FaUserCircle style={styles.userIcon}/>
             </Link>
          </div>
       </header>
@@ -67,9 +67,13 @@ const styles = {
       flex: 1,
       display: 'flex',
       justifyContent: 'flex-end',
+      alignItems: 'center',
+   },
+   userLink: {
+      alignItems: 'center',
    },
    userIcon: {
-      fontSize: '24px',
+      fontSize: '35px',
       cursor: 'pointer',
       color: '#fff',
    },
