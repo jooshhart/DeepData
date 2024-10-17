@@ -13,9 +13,9 @@ const SignUp = () => {
 
     try {
       const response = await axios.post('/api/auth/signup', {
-        username,
-        password,
-        email,
+        username:username,
+        password:password,
+        email:email,
       });
       setSuccessMessage(response.data.message);
       setErrorMessage(''); 
