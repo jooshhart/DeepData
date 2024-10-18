@@ -12,15 +12,25 @@ const SignUp = () => {
     e.preventDefault();
 
     try {
+      // Send the sign-up data to your backend
       const response = await axios.post('/api/auth/signup', {
-        username:username,
-        password:password,
-        email:email,
+        username: username,
+        password: password,
+        email: email,
       });
-      setSuccessMessage(response.data.message);
-      setErrorMessage(''); 
+
+      // If the sign-up is successful, store the JWT token in localStorage
+      const token = response.data.token;
+      localStorage.setItem('token', token);
+
+      // Clear error message and set success message
+      setSuccessMessage('Sign-up successful!');
+      setErrorMessage('');
+
+      // Redirect to the profile page
+      window.location.href = '/profile';
     } catch (error) {
-      // Check if the error response is available and display the message
+      // Handle errors by displaying appropriate messages
       if (error.response && error.response.data) {
         setErrorMessage(error.response.data.message || 'Sign-up failed. Please try again.');
       } else {
