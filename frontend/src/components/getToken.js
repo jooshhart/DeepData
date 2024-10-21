@@ -1,6 +1,6 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-const Url = require("../../backendURL");
+const Url = require("../backendURL");
 
 // Check if token is expired
 // true == expired

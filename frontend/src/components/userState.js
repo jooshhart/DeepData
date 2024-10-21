@@ -1,8 +1,8 @@
 import axios from "axios";
-import { getUserToken } from "../../Functions/Auth/getToken";
+import { getUserToken } from "./getToken";
 
 // All varibales
-const Url = require("../../backendURL");
+const Url = require("../backendURL");
 const accountId = localStorage.getItem("userId");
 
 /*---------------------  Account ---------------------*/
@@ -18,7 +18,7 @@ export const userLogin = async (data) => {
         "Content-Type": "application/json",
       },
     });
-    if (res.status == 200) {
+    if (res.status === 200) {
       const path = localStorage.getItem("lastLoc");
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("refreshToken", res.data.refreshToken);
@@ -87,14 +87,14 @@ export const createNewPasswordForForgotten = async (
 
 export const getAccountById = async () => {
   try {
-    const token = await getCustomerToken();
+    const token = await getUserToken();
     const response = await axios.get(`${Url}user/${accountId}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });
-    if (response.status == 200) {
+    if (response.status === 200) {
       const data = await response.data.doc;
       return data;
     } else {
@@ -113,7 +113,7 @@ export const getAccountById = async () => {
 export const editAccountInfo = async (data) => {
   console.log("Edit account info", data);
   try {
-    const token = await getUserToken("/customer/user");
+    const token = await getUserToken("/user/user");
     const res = await axios.patch(`${Url}user/edit/${accountId}`, data, {
       headers: {
         "Content-Type": "application/json",
@@ -134,7 +134,7 @@ export const editAccountInfo = async (data) => {
 
 export const editPassword = async (oldPassword, newPassword) => {
   try {
-    const token = await getCustomerToken("/customer/user");
+    const token = await getUserToken("/user/user");
     await axios.patch(
       `${Url}user/edit-password/${accountId}`,
       {
@@ -160,7 +160,7 @@ export const editPassword = async (oldPassword, newPassword) => {
 
 export const deleteAccount = async () => {
   try {
-    const token = await getCustomerToken("/customer/user");
+    const token = await getUserToken("user/user");
     const res = await axios.patch(
       `${Url}user/delete/${accountId}`,
       {},
@@ -183,11 +183,11 @@ export const deleteAccount = async () => {
   }
 };
 
-export const customerSignOut = () => {
+export const userSignOut = () => {
   localStorage.removeItem("isLoggedIn");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("isAdmin");
   localStorage.removeItem("userId");
   localStorage.removeItem("token");
-  window.location.assign("/customer/login");
+  window.location.assign("/login");
 };
