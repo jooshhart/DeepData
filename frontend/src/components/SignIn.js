@@ -2,6 +2,8 @@ import React, { useEffect, useState }  from 'react'
 import { Toaster, toast } from 'react-hot-toast';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { userLogin } from './UserState';
+import {eyeOff} from 'react-icons-kit/feather/eyeOff';
+import {eye} from 'react-icons-kit/feather/eye'
 
 const SignIn = () => {
 
@@ -140,7 +142,7 @@ const SignIn = () => {
         <span 
         style={{position:"absolute",right:8,bottom:33,cursor:"pointer"}}
         onClick={() =>setIsVisible(!isVisible)}
-        >{isVisible ? visible : invisible}</span>
+        >{isVisible ? eye : eyeOff}</span>
       </div>
   
         <button 
