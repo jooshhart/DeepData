@@ -1,31 +1,41 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';  // Use Routes instead of Switch
-import Homepage from './pages/Homepage';
-import Queries from './pages/Queries';
-import Visuals from './pages/Visuals';
-import SignIn from './components/SignIn.js';
-import SignUp from './components/SignUp';
-import ProfilePage from './pages/Profile';
-import ProtectedRoute from './components/ProtectedRoute';
-import './App.css';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { Container } from 'react-bootstrap';
+import { Outlet } from 'react-router-dom';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import { logout } from './slices/authSlice';
 
-function App() {
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const App = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const expirationTime = localStorage.getItem('expirationTime');
+    if (expirationTime) {
+      const currentTime = new Date().getTime();
+
+      if (currentTime > expirationTime) {
+        dispatch(logout());
+      }
+    }
+  }, [dispatch]);
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Homepage />} />  {/* Correct element usage */}
-        <Route path="/queries" element={<Queries />} />
-        <Route path="/visuals" element={<Visuals />} />
-        <Route path="/signin" element={<SignIn />} />  {/* Correct element usage */}
-        <Route path="/signup" element={<SignUp />} />
-        <Route
-          path="/profile"
-          element={<ProtectedRoute element={ProfilePage} />}  // Use element and ProtectedRoute for auth
-        />
-      </Routes>
-    </Router>
+    <>
+      <ToastContainer />
+      <Header />
+      <main className='py-3'>
+        <Container>
+          <Outlet />
+        </Container>
+      </main>
+      <Footer />
+    </>
   );
-}
+};
 
 export default App;
 

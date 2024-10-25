@@ -1,11 +1,8 @@
 import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 
 const Homepage = () => {
    return (
       <div>
-         <Header />
          <main>
             <div style={styles.container}>
                <h1 style={styles.title}>DeepData</h1>
@@ -19,7 +16,6 @@ const Homepage = () => {
                </div>
             </div>
          </main>
-         <Footer />
       </div>
    );
 };
