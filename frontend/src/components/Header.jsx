@@ -1,63 +1,30 @@
 import React from 'react';
-import { Navbar, Nav, Container, NavDropdown, Badge } from 'react-bootstrap';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import logo from '../images/DeepData Logo.jpg'; // Assuming logo.png is in the images folder
 import { FaUserCircle } from "react-icons/fa";
-import { useLogoutMutation } from '../slices/userApiSlice';
-import { logout } from '../slices/authSlice';
-import SearchBox from './SearchBox';
 
 const Header = () => {
-   const { userInfo } = useSelector((state) => state.auth);
-
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const [logoutApiCall] = useLogoutMutation();
-
-  const logoutHandler = async () => {
-    try {
-      await logoutApiCall().unwrap();
-      dispatch(logout());
-      navigate('/login');
-    } catch (err) {
-      console.error(err);
-    }
-  };
+   const location = useLocation(); // To track the current page
 
    return (
       <header style={styles.header}>
-         <Navbar bg='primary' variant='dark' expand='lg' collapseOnSelect>
-        <Container>
-          <Navbar.Brand as={Link} to='/'>
-            <img src={logo} alt='DeepData' />
-            DeepData
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls='basic-navbar-nav' />
-          <Navbar.Collapse id='basic-navbar-nav'>
-            <Nav className='ms-auto'>
-              <SearchBox />
-              {userInfo ? (
-                <>
-                  <NavDropdown title={userInfo.name} id='username'>
-                    <NavDropdown.Item as={Link} to='/profile'>
-                      Profile
-                    </NavDropdown.Item>
-                    <NavDropdown.Item onClick={logoutHandler}>
-                      Logout
-                    </NavDropdown.Item>
-                  </NavDropdown>
-                </>
-              ) : (
-                <Nav.Link as={Link} to='/login'>
-                  <FaUserCircle /> Sign In
-                </Nav.Link>
-              )}
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+         <div style={styles.logoContainer}>
+            <Link to="/">
+               <img src={logo} alt="Logo" style={styles.logo} />
+            </Link>
+         </div>
+
+         <div style={styles.navContainer}>
+            <Link to="/" style={location.pathname === '/' ? styles.activeLink : styles.link}>Homepage</Link>
+            <Link to="/queries" style={location.pathname === '/queries' ? styles.activeLink : styles.link}>Queries</Link>
+            <Link to="/visuals" style={location.pathname === '/visuals' ? styles.activeLink : styles.link}>Visuals</Link>
+         </div>
+
+         <div style={styles.userContainer}>
+            <Link to="/profile" style={styles.userLink}>
+               <FaUserCircle style={styles.userIcon}/>
+            </Link>
+         </div>
       </header>
    );
 };
