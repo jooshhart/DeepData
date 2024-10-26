@@ -1,6 +1,7 @@
 {
   "name": "mern-subscription-site",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "devDependencies": {
     "concurrently": "^9.0.1"
@@ -8,7 +9,10 @@
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd backend && npm start",
-    "client": "cd frontend && npm start"
+    "client": "cd frontend && npm start",
+    "data:import": "node backend/seeder",
+    "data:destroy": "node backend/seeder -d",
+    "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.3.0",

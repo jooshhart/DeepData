@@ -1,47 +1,28 @@
-/*
-File Content: This file contains the login logic for subitt.
-Author: Michael Hendrick
-File Created Date: 200 BCE (I don't know)
-=============
-Revision History: 
-*/
-const jwt = require('jsonwebtoken');
-const AccountModel = require('../models/user');
+import asyncHandler from '../middleware/asyncHandler.js';
+import generateToken from '../utils/generateToken.js';
+import User from '../models/userModel.js';
 
-const bcrypt = require('bcrypt');
+// @desc    Auth user & get token
+// @route   POST /api/users/auth
+// @access  Public
+const authUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
 
-exports.createToken = async (req, res, next) => {
-  try {
-    //Email should be unique
-    const account = await AccountModel.findOne({ email: req.body.email, status: 'Active' }).exec();
+  const user = await User.findOne({ email });
 
-    //console.log(account,{email: req.body.user,password: req.body.password},{email: req.body.email,password: req.body.password},account.password);
-    await bcrypt.compare(req.body.password, account.password).then(function (result) {
-      //console.log(result);
-      if (result == true) {
-        token = jwt.sign(account.toJSON(), process.env.JWT_SECRET_KEY);
-        res.setHeader('Set-Cookie', 'token=' + token + ';'); // Expires='+new Date(Date.now()+3600000).toGMTString()+';');
-        res.cookie('token', token, { expire: 360000 + Date.now() });
-        res.status(200).send({ token });
-      } else {
-        res.status(401).json({ err: 'Invalid credentials' });
-      }
+  if (user && (await user.matchPassword(password))) {
+    generateToken(res, user._id);
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
     });
-  } catch (err) {
-    res.status(400).json({ err: err.message });
+  } else {
+    res.status(401);
+    throw new Error('Invalid email or password');
   }
-  const token = req.get('Authorization').split(' ')[1];
-  let decodedToken;
-  try {
-    decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
-  } catch (err) {
-    err.status = 500;
-    throw err;
-  }
-  if (!decodedToken) {
-    throw new Api401Error('Not authenticated.');
-  }
-  req.accountId = decodedToken.id;
+});
 
-  next();
-};
+export { authUser };

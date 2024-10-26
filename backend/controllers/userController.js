@@ -15,7 +15,7 @@ const authUser = asyncHandler(async (req, res) => {
 
     res.json({
       _id: user._id,
-      name: user.name,
+      username: user.username,
       email: user.email,
       isAdmin: user.isAdmin,
     });
@@ -29,17 +29,17 @@ const authUser = asyncHandler(async (req, res) => {
 // @route   POST /api/users
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { username, email, password } = req.body;
 
-  const userExists = await User.findOne({ email });
+  const userExists = await User.findOne({ $or: [{ email }, { username }] });
 
   if (userExists) {
     res.status(400);
-    throw new Error('User already exists');
+    throw new Error('Username or email already exists');
   }
 
   const user = await User.create({
-    name,
+    username,
     email,
     password,
   });
@@ -49,7 +49,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
     res.status(201).json({
       _id: user._id,
-      name: user.name,
+      username: user.username,
       email: user.email,
       isAdmin: user.isAdmin,
     });
@@ -76,7 +76,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
   if (user) {
     res.json({
       _id: user._id,
-      name: user.name,
+      username: user.username,
       email: user.email,
       isAdmin: user.isAdmin,
     });
@@ -93,7 +93,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
-    user.name = req.body.name || user.name;
+    user.username = req.body.username || user.username;
     user.email = req.body.email || user.email;
 
     if (req.body.password) {
@@ -104,7 +104,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 
     res.json({
       _id: updatedUser._id,
-      name: updatedUser.name,
+      username: updatedUser.username,
       email: updatedUser.email,
       isAdmin: updatedUser.isAdmin,
     });
@@ -131,7 +131,7 @@ const deleteUser = asyncHandler(async (req, res) => {
   if (user) {
     if (user.isAdmin) {
       res.status(400);
-      throw new Error('Can not delete admin user');
+      throw new Error('Cannot delete admin user');
     }
     await User.deleteOne({ _id: user._id });
     res.json({ message: 'User removed' });
@@ -154,6 +154,7 @@ const getUserById = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 });
+
 // @desc    Update user
 // @route   PUT /api/users/:id
 // @access  Private/Admin
@@ -161,7 +162,7 @@ const updateUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
   if (user) {
-    user.name = req.body.name || user.name;
+    user.username = req.body.username || user.username;
     user.email = req.body.email || user.email;
     user.isAdmin = Boolean(req.body.isAdmin);
 
@@ -169,7 +170,7 @@ const updateUser = asyncHandler(async (req, res) => {
 
     res.json({
       _id: updatedUser._id,
-      name: updatedUser.name,
+      username: updatedUser.username,
       email: updatedUser.email,
       isAdmin: updatedUser.isAdmin,
     });

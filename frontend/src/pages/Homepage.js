@@ -5,7 +5,7 @@ const Homepage = () => {
       <div>
          <main>
             <div style={styles.container}>
-               <h1 style={styles.title}>DeepData</h1>
+               <h1 style={styles.title}>DeepData Visuals</h1>
                <div style={styles.cardWrapper}>
                   <div style={styles.card}>
                      <p style={styles.description}>
