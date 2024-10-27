@@ -1,193 +1,62 @@
-import asyncHandler from '../middleware/asyncHandler.js';
-import generateToken from '../utils/generateToken.js';
-import User from '../models/userModel.js';
+const { default: mongoose } = require('mongoose');
+const User = require('../models/userModel.js');
+const ObjectId = mongoose.Types.ObjectId
 
-// @desc    Auth user & get token
-// @route   POST /api/users/auth
-// @access  Public
-const authUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+const getAll = async (req, res) => {
+  const user = await User.find();
+  res.setHeader('Content-Type', 'application/json');
+  res.json(user);
+}
 
-  const user = await User.findOne({ email });
-
-  if (user && (await user.matchPassword(password))) {
-    generateToken(res, user._id);
-
-    res.json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      isAdmin: user.isAdmin,
-    });
-  } else {
-    res.status(401);
-    throw new Error('Invalid email or password');
+const getUser = async (req, res) => {
+  if (!ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid User ID' });
   }
-});
-
-// @desc    Register a new user
-// @route   POST /api/users
-// @access  Public
-const registerUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
-
-  const userExists = await User.findOne({ $or: [{ email }, { username }] });
-
-  if (userExists) {
-    res.status(400);
-    throw new Error('Username or email already exists');
-  }
-
-  const user = await User.create({
-    username,
-    email,
-    password,
-  });
-
-  if (user) {
-    generateToken(res, user._id);
-
-    res.status(201).json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      isAdmin: user.isAdmin,
-    });
-  } else {
-    res.status(400);
-    throw new Error('Invalid user data');
-  }
-});
-
-// @desc    Logout user / clear cookie
-// @route   POST /api/users/logout
-// @access  Public
-const logoutUser = (req, res) => {
-  res.clearCookie('jwt');
-  res.status(200).json({ message: 'Logged out successfully' });
-};
-
-// @desc    Get user profile
-// @route   GET /api/users/profile
-// @access  Private
-const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
-
-  if (user) {
-    res.json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      isAdmin: user.isAdmin,
-    });
-  } else {
-    res.status(404);
-    throw new Error('User not found');
-  }
-});
-
-// @desc    Update user profile
-// @route   PUT /api/users/profile
-// @access  Private
-const updateUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
-
-  if (user) {
-    user.username = req.body.username || user.username;
-    user.email = req.body.email || user.email;
-
-    if (req.body.password) {
-      user.password = req.body.password;
-    }
-
-    const updatedUser = await user.save();
-
-    res.json({
-      _id: updatedUser._id,
-      username: updatedUser.username,
-      email: updatedUser.email,
-      isAdmin: updatedUser.isAdmin,
-    });
-  } else {
-    res.status(404);
-    throw new Error('User not found');
-  }
-});
-
-// @desc    Get all users
-// @route   GET /api/users
-// @access  Private/Admin
-const getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({});
-  res.json(users);
-});
-
-// @desc    Delete user
-// @route   DELETE /api/users/:id
-// @access  Private/Admin
-const deleteUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
+  res.setHeader('Content-Type', 'application/json');
+  res.json(user);
+}
 
-  if (user) {
-    if (user.isAdmin) {
-      res.status(400);
-      throw new Error('Cannot delete admin user');
-    }
-    await User.deleteOne({ _id: user._id });
-    res.json({ message: 'User removed' });
-  } else {
-    res.status(404);
-    throw new Error('User not found');
+const createUser = async (req, res) => {
+  const user = {
+      username: req.body.username,
+      password: req.body.password,
+      email: req.body.email
   }
-});
 
-// @desc    Get user by ID
-// @route   GET /api/users/:id
-// @access  Private/Admin
-const getUserById = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.params.id).select('-password');
+  const newUser = new User(user);
+  await newUser.save();
+  res.json(newUser);
+}
 
-  if (user) {
-    res.json(user);
-  } else {
-    res.status(404);
-    throw new Error('User not found');
+const updateUser = async (req, res) => {
+  if (!ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid User ID' });
   }
-});
-
-// @desc    Update user
-// @route   PUT /api/users/:id
-// @access  Private/Admin
-const updateUser = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.params.id);
-
-  if (user) {
-    user.username = req.body.username || user.username;
-    user.email = req.body.email || user.email;
-    user.isAdmin = Boolean(req.body.isAdmin);
-
-    const updatedUser = await user.save();
-
-    res.json({
-      _id: updatedUser._id,
-      username: updatedUser.username,
-      email: updatedUser.email,
-      isAdmin: updatedUser.isAdmin,
-    });
-  } else {
-    res.status(404);
-    throw new Error('User not found');
+  const user = {
+      username: req.body.username,
+      password: req.body.password,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email
   }
-});
 
-export {
-  authUser,
-  registerUser,
-  logoutUser,
-  getUserProfile,
-  updateUserProfile,
-  getUsers,
-  deleteUser,
-  getUserById,
+  const updatedUser = await User.findByIdAndUpdate(req.params.id, user, {new: true});
+  res.json(updatedUser)
+}
+
+const deleteUser = async (req, res) => {
+  if (!ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid User ID' });
+  }
+  const deletedUser = await User.findByIdAndDelete(req.params.id);
+  res.json(deletedUser)
+}
+
+module.exports = {
+  getAll,
+  getUser,
+  createUser,
   updateUser,
-};
+  deleteUser
+}

@@ -1,31 +1,12 @@
-import express from 'express';
-import {
-  registerUser,
-  logoutUser,
-  getUserProfile,
-  updateUserProfile,
-  getUsers,
-  deleteUser,
-  getUserById,
-  updateUser,
-} from '../controllers/userController.js';
-import { authUser } from '../controllers/loginController.js'; // Import the login controller
-import { protect, admin } from '../middleware/authMiddleware.js';
+const express = require('express');
+const userRouter = express.Router();
 
-const router = express.Router();
+const userController = require('../controllers/userController.js')
 
-// User routes
-router.route('/').post(registerUser).get(protect, admin, getUsers);
-router.post('/auth', authUser); // Login route
-router.post('/logout', logoutUser);
-router
-  .route('/profile')
-  .get(protect, getUserProfile)
-  .put(protect, updateUserProfile);
-router
-  .route('/:id')
-  .delete(protect, admin, deleteUser)
-  .get(protect, admin, getUserById)
-  .put(protect, admin, updateUser);
+userRouter.get('/', userController.getAll);
+userRouter.get('/:id', userController.getUser);
+userRouter.post('/', userController.createUser);
+userRouter.put('/:id', userController.updateUser);
+userRouter.delete('/:id', userController.deleteUser);
 
-export default router;
+module.exports = userRouter;
