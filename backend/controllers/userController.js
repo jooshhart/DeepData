@@ -1,60 +1,85 @@
-const { default: mongoose } = require('mongoose');
+const mongoose = require('mongoose');
 const User = require('../models/userModel.js');
-const ObjectId = mongoose.Types.ObjectId
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const ObjectId = mongoose.Types.ObjectId;
 
-const getAll = async (req, res) => {
-  const user = await User.find();
-  res.setHeader('Content-Type', 'application/json');
-  res.json(user);
-}
-
+// Fetch a user by ID
 const getUser = async (req, res) => {
-  if (!ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ error: 'Invalid User ID' });
+  try {
+    const user = await User.findById(req.userId).select('-password');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
   }
-  const user = await User.findById(req.params.id);
-  res.setHeader('Content-Type', 'application/json');
-  res.json(user);
-}
+};
 
-const createUser = async (req, res) => {
-  const user = {
-      username: req.body.username,
-      password: req.body.password,
-      email: req.body.email
+// Register a new user
+const registerUser = async (req, res) => {
+  const { username, email, password } = req.body;
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ username, email, password: hashedPassword });
+    await newUser.save();
+    res.status(201).json(newUser);
+  } catch (error) {
+    res.status(500).json({ error: 'Registration error' });
   }
+};
 
-  const newUser = new User(user);
-  await newUser.save();
-  res.json(newUser);
-}
+// Log in a user
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    // Fetch user by email
+    const user = await User.findOne({ email });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      // Return error if user not found or password doesn't match
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
 
-const updateUser = async (req, res) => {
-  if (!ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ error: 'Invalid User ID' });
+    // Generate JWT token with 1-hour expiration
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    // Respond with the generated token
+    res.json({ token });
+  } catch (error) {
+    // Handle any unexpected errors
+    res.status(500).json({ error: 'Login error' });
   }
-  const user = {
-      username: req.body.username,
-      password: req.body.password,
-      email: req.body.email
-  }
+};
 
-  const updatedUser = await User.findByIdAndUpdate(req.params.id, user, {new: true});
-  res.json(updatedUser)
-}
+// Update user profile
+const updateUserProfile = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
+    const updateData = { username, email, ...(hashedPassword && { password: hashedPassword }) };
 
-const deleteUser = async (req, res) => {
-  if (!ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ error: 'Invalid User ID' });
+    const updatedUser = await User.findByIdAndUpdate(req.userId, updateData, { new: true });
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ error: 'Profile update error' });
   }
-  const deletedUser = await User.findByIdAndDelete(req.params.id);
-  res.json(deletedUser)
-}
+};
+
+// JWT Authentication Middleware
+const authenticateJWT = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(403).json({ error: 'Unauthorized access' });
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) return res.status(403).json({ error: 'Unauthorized access' });
+    req.userId = decoded.userId;
+    next();
+  });
+};
 
 module.exports = {
-  getAll,
   getUser,
-  createUser,
-  updateUser,
-  deleteUser
-}
+  registerUser,
+  loginUser,
+  updateUserProfile,
+  authenticateJWT,
+};
