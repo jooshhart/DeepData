@@ -14,12 +14,6 @@ app.use(cors());
 app.use(express.json());
 app.use('/api', require('./routes/index.js'))
 
-app.use('/login', (req, res) => {
-  res.send({
-    token: 'test123'
-  });
-});
-
 app.listen(port, () =>
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${port}`)
 )

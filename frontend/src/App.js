@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Homepage from './pages/Homepage';
 import Queries from './pages/Queries';
@@ -7,18 +7,17 @@ import Login from './pages/SignIn';
 import Profile from './pages/Profile';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import { UserProvider } from './context/userState';
+import { UserContext } from './context/userState';
 import './App.css';
 
 function App() {
-  const [token, setToken] = useState();
+  const { token, setToken } = useContext(UserContext);
 
-  if(!token) {
-    return <Login setToken={setToken} />
+  if (!token) {
+    return <Login setToken={setToken} />;
   }
 
   return (
-    <UserProvider>
       <Router>
         <Header />
         <div className="main-content">
@@ -31,7 +30,6 @@ function App() {
         </div>
         <Footer />
       </Router>
-    </UserProvider>
   );
 }
 

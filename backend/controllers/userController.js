@@ -4,59 +4,64 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const ObjectId = mongoose.Types.ObjectId;
 
-// Fetch a user by ID
-const getUser = async (req, res) => {
+const JWT_SECRET = process.env.JWT_SECRET || "secretheld";
+
+const loginUser = async (req, res) => {
+  const { username, password } = req.body;
+
   try {
-    const user = await User.findById(req.userId).select('-password');
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json(user);
+    // Step 1: Find user by username
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Step 2: Validate password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
+    // Step 3: Generate token and respond with user data
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    res.status(200).json({
+      message: "Login successful",
+      user: { id: user._id, username: user.username, email: user.email }, // Return necessary fields
+      token,
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
-// Register a new user
-const registerUser = async (req, res) => {
-  const { username, email, password } = req.body;
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, email, password: hashedPassword });
-    await newUser.save();
-    res.status(201).json(newUser);
-  } catch (error) {
-    res.status(500).json({ error: 'Registration error' });
-  }
-};
+// Middleware to authenticate token
+const authenticateToken = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1]; // Extract token from header
+  if (!token) return res.status(401).json({ message: "Access Denied" });
 
-// Update user profile
-const updateUserProfile = async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
-    const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
-    const updateData = { username, email, ...(hashedPassword && { password: hashedPassword }) };
-
-    const updatedUser = await User.findByIdAndUpdate(req.userId, updateData, { new: true });
-    res.json(updatedUser);
-  } catch (error) {
-    res.status(500).json({ error: 'Profile update error' });
-  }
-};
-
-// JWT Authentication Middleware
-const authenticateJWT = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(403).json({ error: 'Unauthorized access' });
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(403).json({ error: 'Unauthorized access' });
-    req.userId = decoded.userId;
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: "Invalid Token" });
+    req.user = user; // Attach user info from token payload
     next();
   });
 };
 
+// Define the route to get user information
+const getUser = async (req, res) => {
+  try {
+    // Fetch user by ID from token payload
+    const user = await User.findById(req.user.id).select('-password'); // Exclude password from the result
+    if (!user) return res.status(404).json({ message: "User not found" });
+    
+    res.json({ user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 module.exports = {
-  getUser,
-  registerUser,
-  updateUserProfile,
-  authenticateJWT,
+  loginUser,
+  authenticateToken,
+  getUser
 };

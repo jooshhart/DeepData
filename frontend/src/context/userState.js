@@ -1,54 +1,60 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import axios from 'axios';
 
-const UserContext = createContext();
-
-const initialState = {
-  user: null,
-  token: localStorage.getItem('token'),
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case 'LOGIN_SUCCESS':
-      return { ...state, user: action.payload.user, token: action.payload.token };
-    case 'LOGOUT':
-      return { ...state, user: null, token: null };
-    default:
-      return state;
-  }
-};
+export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [user, setUser] = useState(null); // Store user details here
+  const [token, setToken] = useState(null); // Store the JWT token here
 
-  const login = async (email, password) => {
-    const { data } = await axios.post('/api/users/login', { email, password });
-    localStorage.setItem('token', data.token);
-    dispatch({ type: 'LOGIN_SUCCESS', payload: data });
+  // Define fetchUser here
+  const fetchUser = async (token) => {
+    try {
+      const response = await axios.get('/api/users/user', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUser(response.data.user); // Update user state with fetched data
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+      logout(); // Logout if fetching fails (e.g., token expired)
+    }
   };
 
-  const register = async (userData) => {
-    await axios.post('/api/users/register', userData);
+  useEffect(() => {
+    // Optionally, check if there's a saved token in localStorage on component mount
+    const savedToken = localStorage.getItem('token');
+    if (savedToken) {
+      setToken(savedToken);
+      fetchUser(savedToken);
+    }
+  }, []);
+
+  // Function to handle login
+  const login = async (username, password) => {
+    try {
+      const response = await axios.post('/api/users/login', { username, password });
+      const { token, user } = response.data; // Extract user details from response
+
+      // Save token and user data in state and localStorage
+      setToken(token);
+      setUser(user); // User details like username, email, etc.
+      localStorage.setItem('token', token); // Persist token in localStorage
+
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
 
+  // Function to log out the user
   const logout = () => {
+    setToken(null);
+    setUser(null); // Clear user details
     localStorage.removeItem('token');
-    dispatch({ type: 'LOGOUT' });
-  };
-
-  const getProfile = async () => {
-    const { data } = await axios.get('/api/users/profile', {
-      headers: { Authorization: `Bearer ${state.token}` },
-    });
-    return data;
   };
 
   return (
-    <UserContext.Provider value={{ ...state, login, register, logout, getProfile }}>
+    <UserContext.Provider value={{ user, token, login, logout }}>
       {children}
     </UserContext.Provider>
   );
 };
-
-export const useUser = () => useContext(UserContext);

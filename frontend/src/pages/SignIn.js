@@ -1,52 +1,46 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useContext } from 'react';
+import { UserContext } from '../context/userState';
 
-async function loginUser(credentials) {
- return fetch('http://localhost:5000/login', {
-   method: 'POST',
-   headers: {
-     'Content-Type': 'application/json'
-   },
-   body: JSON.stringify(credentials)
- })
-   .then(data => data.json())
-}
+const SignIn = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const { login } = useContext(UserContext);
 
-export default function Login({ setToken }) {
-  const [username, setUserName] = useState();
-  const [password, setPassword] = useState();
-
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = await loginUser({
-      username,
-      password
-    });
-    setToken(token);
-  }
+    try {
+      await login(username, password);
+      console.log("User logged in successfully");
+      // You can redirect or update state after login if needed
+    } catch (error) {
+      console.error("Error during login:", error);
+    }
+  };
 
-  return(
+  return (
     <div style={styles.wrapper}>
-      <h1>Please Log In</h1>
+      <h2>Sign In</h2>
       <form onSubmit={handleSubmit}>
-        <label>
-          <p>Username</p>
-          <input type="text" onChange={e => setUserName(e.target.value)} />
-        </label>
-        <label>
-          <p>Password</p>
-          <input type="password" onChange={e => setPassword(e.target.value)} />
-        </label>
         <div>
-          <button type="submit">Submit</button>
+          <label>Username:</label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
         </div>
+        <div>
+          <label>Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <button type="submit">Login</button>
       </form>
     </div>
-  )
-}
-
-Login.propTypes = {
-  setToken: PropTypes.func.isRequired
+  );
 };
 
 const styles = {
@@ -56,3 +50,5 @@ const styles = {
     alignItems: 'center',
   },
 };
+
+export default SignIn
