@@ -1,23 +1,58 @@
 import React, { useState } from 'react';
-import { useUser } from '../context/userState';
+import PropTypes from 'prop-types';
 
-const SignIn = () => {
-  const { login } = useUser();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+async function loginUser(credentials) {
+ return fetch('http://localhost:5000/login', {
+   method: 'POST',
+   headers: {
+     'Content-Type': 'application/json'
+   },
+   body: JSON.stringify(credentials)
+ })
+   .then(data => data.json())
+}
 
-  const handleSubmit = async (e) => {
+export default function Login({ setToken }) {
+  const [username, setUserName] = useState();
+  const [password, setPassword] = useState();
+
+  const handleSubmit = async e => {
     e.preventDefault();
-    await login(email, password);
-  };
+    const token = await loginUser({
+      username,
+      password
+    });
+    setToken(token);
+  }
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-      <button type="submit">Sign In</button>
-    </form>
-  );
+  return(
+    <div style={styles.wrapper}>
+      <h1>Please Log In</h1>
+      <form onSubmit={handleSubmit}>
+        <label>
+          <p>Username</p>
+          <input type="text" onChange={e => setUserName(e.target.value)} />
+        </label>
+        <label>
+          <p>Password</p>
+          <input type="password" onChange={e => setPassword(e.target.value)} />
+        </label>
+        <div>
+          <button type="submit">Submit</button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
+Login.propTypes = {
+  setToken: PropTypes.func.isRequired
 };
 
-export default SignIn;
+const styles = {
+  wrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+};

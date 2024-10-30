@@ -28,28 +28,6 @@ const registerUser = async (req, res) => {
   }
 };
 
-// Log in a user
-const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    // Fetch user by email
-    const user = await User.findOne({ email });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      // Return error if user not found or password doesn't match
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
-
-    // Generate JWT token with 1-hour expiration
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    // Respond with the generated token
-    res.json({ token });
-  } catch (error) {
-    // Handle any unexpected errors
-    res.status(500).json({ error: 'Login error' });
-  }
-};
-
 // Update user profile
 const updateUserProfile = async (req, res) => {
   try {
@@ -79,7 +57,6 @@ const authenticateJWT = (req, res, next) => {
 module.exports = {
   getUser,
   registerUser,
-  loginUser,
   updateUserProfile,
   authenticateJWT,
 };

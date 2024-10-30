@@ -9,19 +9,19 @@ const Header = () => {
    return (
       <header style={styles.header}>
          <div style={styles.logoContainer}>
-            <Link to="/">
+            <Link to="/home">
                <img src={logo} alt="Logo" style={styles.logo} />
             </Link>
          </div>
 
          <div style={styles.navContainer}>
-            <Link to="/" style={location.pathname === '/' ? styles.activeLink : styles.link}>Homepage</Link>
+            <Link to="/home" style={location.pathname === '/home' ? styles.activeLink : styles.link}>Homepage</Link>
             <Link to="/queries" style={location.pathname === '/queries' ? styles.activeLink : styles.link}>Queries</Link>
             <Link to="/visuals" style={location.pathname === '/visuals' ? styles.activeLink : styles.link}>Visuals</Link>
          </div>
 
          <div style={styles.userContainer}>
-            <Link to="/profile" style={styles.userLink}>
+            <Link to="/" style={styles.userLink}>
                <FaUserCircle style={styles.userIcon}/>
             </Link>
          </div>
