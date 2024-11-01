@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const ObjectId = mongoose.Types.ObjectId;
 
-const JWT_SECRET = process.env.JWT_SECRET || "secretheld";
+const JWT_SECRET = process.env.JWT_SECRET || "8d16994523acce0346169ee912397bb058bd254412028ecfb3e063c65419aeb6";
 
 const loginUser = async (req, res) => {
   const { username, password } = req.body;
