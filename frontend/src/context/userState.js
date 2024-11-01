@@ -36,7 +36,7 @@ export const UserProvider = ({ children }) => {
       // Update the context with user information
       setToken(token);
       setUser({
-        id: user.id,
+        id: user._id,
         username: user.username,
         email: user.email,
       });
