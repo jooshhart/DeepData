@@ -3,29 +3,27 @@ import axios from 'axios';
 
 export const UserContext = createContext();
 
+const fetchUser = async (token, setUser, logout) => {
+  try {
+    const response = await axios.get('/api/users/user', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setUser(response.data.user);
+  } catch (error) {
+    console.error("Failed to fetch user data:", error);
+    logout(); // Use logout function passed as an argument
+  }
+};
+
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null); // Store user details here
   const [token, setToken] = useState(null); // Store the JWT token here
 
-  // Define fetchUser here
-  const fetchUser = async (token) => {
-    try {
-      const response = await axios.get('/api/users/user', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setUser(response.data.user); // Update user state with fetched data
-    } catch (error) {
-      console.error("Failed to fetch user data:", error);
-      logout(); // Logout if fetching fails (e.g., token expired)
-    }
-  };
-
   useEffect(() => {
-    // Optionally, check if there's a saved token in localStorage on component mount
     const savedToken = localStorage.getItem('token');
     if (savedToken) {
       setToken(savedToken);
-      fetchUser(savedToken);
+      fetchUser(savedToken, setUser, logout); // Pass setUser and logout as arguments
     }
   }, []);
 
@@ -33,13 +31,16 @@ export const UserProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       const response = await axios.post('/api/users/login', { username, password });
-      const { token, user } = response.data; // Extract user details from response
-
-      // Save token and user data in state and localStorage
+      const { token, user } = response.data; // `user` contains id, username, email
+  
+      // Update the context with user information
       setToken(token);
-      setUser(user); // User details like username, email, etc.
-      localStorage.setItem('token', token); // Persist token in localStorage
-
+      setUser({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      });
+      localStorage.setItem('token', token);
     } catch (error) {
       console.error("Login failed:", error);
     }
