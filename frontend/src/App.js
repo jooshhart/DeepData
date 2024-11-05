@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Homepage from './pages/Homepage';
 import Queries from './pages/Queries';
 import Visuals from './pages/Visuals';
-import Login from './pages/SignIn';
+import AuthPage from './pages/AuthPage';
 import Profile from './pages/Profile';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -14,7 +14,7 @@ function App() {
   const { token, setToken } = useContext(UserContext);
 
   if (!token) {
-    return <Login setToken={setToken} />;
+    return <AuthPage setToken={setToken} />;
   }
 
   return (
