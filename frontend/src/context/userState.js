@@ -35,7 +35,6 @@ export const UserProvider = ({ children }) => {
       setToken(token);
       setUser(user);
       localStorage.setItem('token', token);
-      console.log(user);
     } catch (error) {
       console.error("Login failed:", error);
     }
