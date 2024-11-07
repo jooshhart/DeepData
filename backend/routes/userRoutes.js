@@ -11,7 +11,7 @@ userRouter.post('/login', userController.loginUser);
 // Get user info route (protected)
 userRouter.get('/user', userController.authenticateToken, userController.getUser);
 
-// Update user info route (protected)
-userRouter.put('/user', userController.authenticateToken, userController.updateUser);
+// Update user info route
+userRouter.patch('/update/:id', userController.patchUser);
 
 module.exports = userRouter;

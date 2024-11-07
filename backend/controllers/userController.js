@@ -38,33 +38,36 @@ const registerUser = async (req, res) => {
   }
 };
 
-// Update User
-const updateUser = async (req, res) => {
-  const { birthdate, gender, ethnicity, country } = req.body;
-
+// Patch a user's details by ID
+const patchUser = async (req, res) => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      {
-        ...(birthdate && { birthdate }), // Updating birthdate will trigger age calculation
-        ...(gender && { gender }),
-        ...(ethnicity && { ethnicity }),
-        ...(country && { country })
-      },
-      { new: true, runValidators: true }
-    ).select('-password');
+    const { id } = req.params;
+    const updates = req.body;
 
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
+    // Only include fields that are in the schema
+    const allowedUpdates = ['username', 'email', 'password', 'birthdate', 'gender', 'ethnicity', 'country'];
+    const filteredUpdates = {};
+
+    for (const key of Object.keys(updates)) {
+      if (allowedUpdates.includes(key)) {
+        filteredUpdates[key] = updates[key];
+      }
     }
 
-    res.json({ message: "User updated successfully", user: updatedUser });
+    const user = await User.findByIdAndUpdate(id, filteredUpdates, {
+      new: true, // return the updated document
+      runValidators: true, // validate data before updating
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json(user);
   } catch (error) {
-    console.error("Update user failed:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: 'Failed to update user', error: error.message });
   }
 };
-
 
 // Login User
 const loginUser = async (req, res) => {
@@ -119,7 +122,7 @@ const getUser = async (req, res) => {
 module.exports = {
   registerUser,
   loginUser,
-  updateUser,
+  patchUser,
   authenticateToken,
   getUser
 };

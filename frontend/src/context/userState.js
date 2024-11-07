@@ -41,27 +41,25 @@ export const UserProvider = ({ children }) => {
   };
 
   // Function to register a user
-  const register = async (username, password, email) => {
+  const register = async (username, email, password) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/users/register', { username, password, email });
+      const response = await axios.post('http://localhost:5000/api/users/register', { username, email, password });
       console.log("User registered successfully:", response.data);
     } catch (error) {
       console.error("Registration failed:", error);
     }
   };
 
-  // Function to update user information
-  const updateUser = async (updatedInfo) => {
+  // Function to update the user
+  const updateUser = async (updatedData) => {
     try {
-      const response = await axios.put(
-        'http://localhost:5000/api/users/user',
-        updatedInfo,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setUser(response.data.user);
+      const response = await axios.patch(`http://localhost:5000/api/users/update/${user._id}`, updatedData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUser(response.data);  // Update the user state with the updated data
       console.log("User updated successfully:", response.data);
     } catch (error) {
-      console.error("User update failed:", error);
+      console.error("Failed to update user:", error);
     }
   };
 
