@@ -1,10 +1,9 @@
+// Profile.js
 import React, { useContext, useState, useEffect } from 'react';
 import { UserContext } from '../context/userState';
 
 const Profile = () => {
-  const { user, logout, updateUser } = useContext(UserContext);
-  
-  // State for form data, initially set from user context
+  const { user, logout, updateUser, calculateAge } = useContext(UserContext);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -13,10 +12,9 @@ const Profile = () => {
     ethnicity: '',
     country: ''
   });
+  const [isInfoCardExpanded, setIsInfoCardExpanded] = useState(false);
+  const [isUpdateCardExpanded, setIsUpdateCardExpanded] = useState(false);
 
-  const [isCardExpanded, setIsCardExpanded] = useState(false);
-
-  // Use useEffect to update formData when user context changes
   useEffect(() => {
     if (user) {
       setFormData({
@@ -30,7 +28,6 @@ const Profile = () => {
     }
   }, [user]);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -39,7 +36,6 @@ const Profile = () => {
     }));
   };
 
-  // Handle user update
   const handleUpdate = async () => {
     try {
       await updateUser(formData);
@@ -51,12 +47,29 @@ const Profile = () => {
 
   return (
     <div style={styles.container}>
-      <div style={styles.card} onClick={() => setIsCardExpanded(!isCardExpanded)}>
+      {/* User Information Card */}
+      <div style={styles.card} onClick={() => setIsInfoCardExpanded(!isInfoCardExpanded)}>
         <h2>User Information</h2>
-        {!isCardExpanded && <p>Click to expand and edit your information</p>}
+        {!isInfoCardExpanded && <p>Click to view your information</p>}
       </div>
+      {isInfoCardExpanded && (
+        <div style={styles.expandedCard}>
+          <p><strong>Username:</strong> {user?.username}</p>
+          <p><strong>Email:</strong> {user?.email}</p>
+          <p><strong>Birthdate:</strong> {user?.birthdate?.slice(0, 10)}</p>
+          <p><strong>Age:</strong> {calculateAge(user?.birthdate)}</p>
+          <p><strong>Gender:</strong> {user?.gender}</p>
+          <p><strong>Ethnicity:</strong> {user?.ethnicity}</p>
+          <p><strong>Country:</strong> {user?.country}</p>
+        </div>
+      )}
 
-      {isCardExpanded && (
+      {/* Update Information Card */}
+      <div style={styles.card} onClick={() => setIsUpdateCardExpanded(!isUpdateCardExpanded)}>
+        <h2>Update Information</h2>
+        {!isUpdateCardExpanded && <p>Click to edit your information</p>}
+      </div>
+      {isUpdateCardExpanded && (
         <div style={styles.expandedCard}>
           <form style={styles.form}>
             <div style={styles.formGroup}>
@@ -129,10 +142,6 @@ const Profile = () => {
         </div>
       )}
 
-      <div style={styles.buttonsContainer}>
-        <button style={styles.navButton}>Comments</button>
-        <button style={styles.navButton}>Visuals</button>
-      </div>
       <button onClick={logout} style={styles.logoutButton}>Logout</button>
     </div>
   );
@@ -152,6 +161,7 @@ const styles = {
     cursor: 'pointer',
     width: '80%',
     textAlign: 'center',
+    marginBottom: '5px',
   },
   expandedCard: {
     backgroundColor: '#5A5A5A',
@@ -159,6 +169,7 @@ const styles = {
     borderRadius: '8px',
     marginTop: '10px',
     width: '80%',
+    marginBottom: '5px',
   },
   form: {
     display: 'flex',
@@ -176,28 +187,15 @@ const styles = {
     borderRadius: '5px',
     cursor: 'pointer',
   },
-  buttonsContainer: {
-    marginTop: '20px',
-    display: 'flex',
-    gap: '10px',
-  },
-  navButton: {
-    padding: '10px 15px',
-    backgroundColor: '#007BFF',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-  },
   logoutButton: {
-    marginTop: '15px',
+    marginTop: '20px',
     padding: '10px',
-    backgroundColor: '#FF5733',
+    backgroundColor: '#F44336',
     color: '#fff',
     border: 'none',
     borderRadius: '5px',
     cursor: 'pointer',
-  }
+  },
 };
 
 export default Profile;

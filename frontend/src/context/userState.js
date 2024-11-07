@@ -35,6 +35,7 @@ export const UserProvider = ({ children }) => {
       setToken(token);
       setUser(user);
       localStorage.setItem('token', token);
+      console.log(user);
     } catch (error) {
       console.error("Login failed:", error);
     }
@@ -70,6 +71,19 @@ export const UserProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
+  // Function to calculate age based on birthdate
+  const calculateAge = (birthdate) => {
+    if (!birthdate) return null;
+    const birthDate = new Date(birthdate);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   return (
     <UserContext.Provider value={{
       user,
@@ -77,7 +91,8 @@ export const UserProvider = ({ children }) => {
       login,
       register,
       updateUser,
-      logout
+      logout,
+      calculateAge
     }}>
       {children}
     </UserContext.Provider>
