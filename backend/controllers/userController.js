@@ -119,10 +119,22 @@ const getUser = async (req, res) => {
   }
 };
 
+// Get All Users
+const getAllUsers = async (req, res) => {
+  try {
+    // Find all users, projecting only the specified fields
+    const users = await User.find({}, 'birthdate gender ethnicity country');
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to retrieve users' });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   patchUser,
   authenticateToken,
-  getUser
+  getUser,
+  getAllUsers
 };

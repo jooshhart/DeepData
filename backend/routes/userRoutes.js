@@ -14,4 +14,7 @@ userRouter.get('/user', userController.authenticateToken, userController.getUser
 // Update user info route
 userRouter.patch('/update/:id', userController.patchUser);
 
+// Get All Users
+userRouter.get('/all', userController.getAllUsers)
+
 module.exports = userRouter;

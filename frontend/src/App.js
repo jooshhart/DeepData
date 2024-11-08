@@ -19,16 +19,18 @@ function App() {
 
   return (
       <Router>
-        <Header />
-        <div className="main-content">
-          <Routes>
-            <Route path="/" element={<Profile />} /> 
-            <Route path="/home" element={<Homepage />} />
-            <Route path="/queries" element={<Queries />} />
-            <Route path="/visuals" element={<Visuals />} />
-          </Routes>
+        <div className="app-container">
+          <Header />
+          <div className="main-content">
+            <Routes>
+              <Route path="/" element={<Profile />} /> 
+              <Route path="/home" element={<Homepage />} />
+              <Route path="/queries" element={<Queries />} />
+              <Route path="/visuals" element={<Visuals />} />
+            </Routes>
+          </div>
+          <Footer />
         </div>
-        <Footer />
       </Router>
   );
 }
