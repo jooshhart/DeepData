@@ -9,6 +9,10 @@ queryRouter.post('/create', queryController.createQuery);
 queryRouter.patch('/answer', queryController.addParticipantAnswer);
 
 // Get query deatails
-queryRouter.get('/detail', queryController.getQueryDetails);
+queryRouter.get('/unparticipated/:userId', queryController.getUnparticipatedQueries);
+
+queryRouter.get('/participated/:userId', queryController.getParticipatedQueries);
+
+queryRouter.get('/:id', queryController.getQueryById)
 
 module.exports = queryRouter;

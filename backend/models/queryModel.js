@@ -8,11 +8,10 @@ const querySchema = new mongoose.Schema({
   },
   // Name of the query
   queryName: { type: String, required: true },
-  // Answers to the query, stored as an array of objects where each answer has a string (answer) and a count
+  // Answers to the query, stored as an array of answer strings
   answers: [
     {
       answer: { type: String, required: true },
-      count: { type: Number, default: 0 },
     },
   ],
   // Array of participants who added data to the query

@@ -1,13 +1,16 @@
 import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { QueryContext } from '../context/queryState';
 import { UserContext } from '../context/userState';
 
 const CreateQuery = () => {
   const { createQuery } = useContext(QueryContext);
   const { user } = useContext(UserContext);
+  const navigate = useNavigate(); // Initialize the navigate function
 
   const [queryName, setQueryName] = useState('');
   const [answers, setAnswers] = useState(['']); // Start with one answer field by default
+  const [message, setMessage] = useState(null); // Message for success or error feedback
 
   // Handler to update answer options
   const handleAnswerChange = (index, value) => {
@@ -27,33 +30,38 @@ const CreateQuery = () => {
     
     // Verify user is available from context
     if (!user) {
-      console.error('User must be logged in to create a query.');
+      setMessage('User must be logged in to create a query.');
       return;
     }
 
-    // Prepare answers in the format needed for the query data
-    const formattedAnswers = answers
-      .filter(answer => answer.trim()) // Ignore empty answers
-      .map(answer => ({ answer, count: 0 })); // Map each answer to required structure
-
-    // Query data structure for backend
+    // Prepare query data
     const queryData = {
       queryName,
       createdBy: {
         userId: user._id,
         userName: user.username,
       },
-      answers: formattedAnswers, // Correct format for backend
+      answers: answers.filter(answer => answer.trim()), // Filter out empty answers
     };
 
-    // Create the query via context
-    await createQuery(queryData);
-    console.log('Query created with data:', queryData);
+    // Create the query
+    const result = await createQuery(queryData);
+    
+    // Handle success or error messages
+    if (result.success) {
+      setMessage('Query created successfully!');
+      setQueryName(''); // Reset form
+      setAnswers(['']); // Reset answers
+      navigate('/'); // Redirect to profile page on success
+    } else {
+      setMessage(result.message || 'Failed to create query.');
+    }
   };
 
   return (
     <div>
       <h1>Create New Query</h1>
+      {message && <p>{message}</p>} {/* Display success or error message */}
       <form onSubmit={handleSubmit}>
         <div>
           <label>Query Name:</label>

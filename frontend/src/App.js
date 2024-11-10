@@ -6,6 +6,8 @@ import Visuals from './pages/Visuals';
 import AuthPage from './pages/AuthPage';
 import Profile from './pages/Profile';
 import CreateQuery from './pages/createQuery';
+import QueryDetails from './pages/queryDetails'
+import VisualDetails from './pages/visualDetails';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { UserContext } from './context/userState';
@@ -28,6 +30,8 @@ function App() {
               <Route path="/home" element={<Homepage />} />
               <Route path="/create" element={<CreateQuery />} />
               <Route path="/queries" element={<Queries />} />
+              <Route path="/query/:id" element={<QueryDetails />} />
+              <Route path="/visual/:id" element={<VisualDetails />} />
               <Route path="/visuals" element={<Visuals />} />
             </Routes>
           </div>

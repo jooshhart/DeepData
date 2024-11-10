@@ -3,30 +3,44 @@ const Query = require('../models/queryModel');
 // 1. Function to create a new query
 const createQuery = async (req, res) => {
   try {
-    const { userId, userName, queryName, answers } = req.body;
+    // Extract data from the request body
+    const { createdBy, queryName, answers } = req.body;
 
-    console.log("Received data from frontend:", req.body);
+    // Validate required fields
+    if (!createdBy || !createdBy.userId || !createdBy.userName || !queryName || !answers) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
 
-    const query = new Query({
-      createdBy: { userId, userName },
-      queryName,
-      answers: answers.map(answer => ({ answer, count: 0 })), // Initialize answers with count 0
+    // Validate that answers is an array of strings
+    if (!Array.isArray(answers) || answers.some(answer => typeof answer !== 'string')) {
+      return res.status(400).json({ message: "Answers should be an array of strings." });
+    }
+
+    // Create the new query
+    const newQuery = new Query({
+      createdBy: {
+        userId: createdBy.userId,
+        userName: createdBy.userName,
+      },
+      queryName: queryName,
+      answers: answers.map(answer => ({ answer })), // Format answers into the correct structure
     });
 
-    console.log("Query object before saving:", query);
+    // Save the query to the database
+    const savedQuery = await newQuery.save();
 
-    await query.save();
-    res.status(201).json(query);
+    // Respond with the newly created query
+    res.status(201).json(savedQuery);
   } catch (error) {
-    console.error("Error saving query:", error);
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Server error. Could not create query." });
   }
 };
 
 // 2. Function to add participant's selected answer to the query
 const addParticipantAnswer = async (req, res) => {
   try {
-    const { queryId, userId, answer } = req.body;
+    const { queryId, userId, answer, age, gender, ethnicity, country } = req.body;
 
     // Check if user has already answered
     const query = await Query.findById(queryId);
@@ -36,10 +50,10 @@ const addParticipantAnswer = async (req, res) => {
       return res.status(400).json({ message: 'User has already participated in this query.' });
     }
 
-    // Add participant with selected answer
-    query.participants.push({ userId, answer });
+    // Add participant with full information and selected answer
+    query.participants.push({ userId, answer, age, gender, ethnicity, country });
 
-    // Increment the answer count
+    // Increment the answer count if it exists
     const answerIndex = query.answers.findIndex(a => a.answer === answer);
     if (answerIndex > -1) {
       query.answers[answerIndex].count += 1;
@@ -55,19 +69,66 @@ const addParticipantAnswer = async (req, res) => {
 };
 
 // 3. Function to display a query and its information
-const getQueryDetails = async (req, res) => {
+const getQueryById = async (req, res) => {
   try {
-    const { queryId } = req.params;
+    // Extract query ID from request parameters
+    const { id } = req.params;
 
-    const query = await Query.findById(queryId);
+    // Find the query by ID and select the necessary fields
+    const query = await Query.findById(id).select('createdBy.userName queryName answers participants');
+
+    // Check if the query exists
     if (!query) {
       return res.status(404).json({ message: 'Query not found' });
     }
 
-    res.status(200).json(query);
+    // Send response with selected fields including participants
+    res.status(200).json({
+      createdBy: query.createdBy.userName,
+      queryName: query.queryName,
+      answers: query.answers.map(answer => answer.answer), // Extract answers
+      participants: query.participants.map(participant => ({
+        userId: participant.userId,
+        age: participant.age,
+        gender: participant.gender,
+        ethnicity: participant.ethnicity,
+        country: participant.country,
+        answer: participant.answer,
+      })), // Extract participant details
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching query:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
-module.exports = { createQuery, addParticipantAnswer, getQueryDetails };
+// 4. Functions to display all queries based on participation
+// Get queries user has NOT participated in, only returning the creator's username and the query name
+const getUnparticipatedQueries = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const queries = await Query.find(
+      { "participants.userId": { $nin: [userId] } }, // Exclude queries where user has participated
+      'queryName createdBy.userName' // Only include queryName and createdBy.userName fields
+    );
+    res.status(200).json(queries);
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving unparticipated queries' });
+  }
+};
+
+// Get queries user has participated in, only returning the creator's username and the query name
+const getParticipatedQueries = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const queries = await Query.find(
+      { "participants.userId": { $in: [userId] } }, // Only include queries where user has participated
+      'queryName createdBy.userName' // Only include queryName and createdBy.userName fields
+    );
+    res.status(200).json(queries);
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving participated queries' });
+  }
+};
+
+module.exports = { createQuery, addParticipantAnswer, getUnparticipatedQueries, getParticipatedQueries, getQueryById };

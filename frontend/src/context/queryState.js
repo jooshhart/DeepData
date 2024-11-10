@@ -11,38 +11,37 @@ export const QueryProvider = ({ children }) => {
   // Function to create a new query
   const createQuery = async (queryInfo) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/query/create', queryInfo);
-      setQueryData(response.data);
-      return response.data;
+      const { data } = await axios.post('http://localhost:5000/api/query/create', queryInfo);
+      setQueryData(data); // Assuming `setQueryData` is accessible here
+      return { success: true, data };
     } catch (error) {
       console.error('Error creating query:', error);
+      
+      // Provide more structured error handling
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to create query',
+        status: error.response?.status,
+      };
     }
   };
 
-  // Function to add a participant’s answer to a query
-  const addAnswer = async (answerInfo) => {
-    try {
-      const response = await axios.patch('http://localhost:5000/api/query/answer', answerInfo);
-      setQueryData(response.data);
-      return response.data;
-    } catch (error) {
-      console.error('Error adding answer:', error);
-    }
-  };
+   // Function to fetch query data by ID
+   const fetchQueryById = async (queryId) => {
 
-  // Function to get query details
-  const getQueryDetails = async (queryId) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/query/detail/${queryId}`);
+      // Make GET request to backend
+      const response = await axios.get(`http://localhost:5000/api/query/${queryId}`);
+      
+      // Update state with response data
       setQueryData(response.data);
-      return response.data;
-    } catch (error) {
-      console.error('Error getting query details:', error);
+    } catch (err) {
+      console.error('Error fetching query:', err);
     }
   };
 
   return (
-    <QueryContext.Provider value={{ queryData, createQuery, addAnswer, getQueryDetails }}>
+    <QueryContext.Provider value={{ queryData, createQuery, fetchQueryById }}>
       {children}
     </QueryContext.Provider>
   );
