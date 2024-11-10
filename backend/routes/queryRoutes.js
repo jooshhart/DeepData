@@ -5,10 +5,10 @@ const queryController = require('../controllers/queryController.js');
 // Create query
 queryRouter.post('/create', queryController.createQuery);
 
-// Login route
+// Choose answer
 queryRouter.patch('/answer', queryController.addParticipantAnswer);
 
-// Get user info route (protected)
-queryRouter.get('/user', queryController.getQueryDetails);
+// Get query deatails
+queryRouter.get('/detail', queryController.getQueryDetails);
 
 module.exports = queryRouter;

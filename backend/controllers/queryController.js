@@ -4,14 +4,21 @@ const Query = require('../models/queryModel');
 const createQuery = async (req, res) => {
   try {
     const { userId, userName, queryName, answers } = req.body;
+
+    console.log("Received data from frontend:", req.body);
+
     const query = new Query({
       createdBy: { userId, userName },
       queryName,
       answers: answers.map(answer => ({ answer, count: 0 })), // Initialize answers with count 0
     });
+
+    console.log("Query object before saving:", query);
+
     await query.save();
     res.status(201).json(query);
   } catch (error) {
+    console.error("Error saving query:", error);
     res.status(500).json({ message: error.message });
   }
 };

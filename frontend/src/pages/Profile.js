@@ -1,6 +1,7 @@
 // Profile.js
 import React, { useContext, useState, useEffect } from 'react';
 import { UserContext } from '../context/userState';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const { user, logout, updateUser, calculateAge } = useContext(UserContext);
@@ -14,6 +15,7 @@ const Profile = () => {
   });
   const [isInfoCardExpanded, setIsInfoCardExpanded] = useState(false);
   const [isUpdateCardExpanded, setIsUpdateCardExpanded] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -43,6 +45,10 @@ const Profile = () => {
     } catch (error) {
       console.error('Failed to update user information:', error);
     }
+  };
+
+  const goToCreateQuery = () => {
+    navigate('/create');
   };
 
   return (
@@ -142,6 +148,7 @@ const Profile = () => {
         </div>
       )}
 
+      <button onClick={goToCreateQuery} style={styles.createQueryButton}>Create Query</button>
       <button onClick={logout} style={styles.logoutButton}>Logout</button>
     </div>
   );
@@ -182,6 +189,15 @@ const styles = {
     marginTop: '15px',
     padding: '10px',
     backgroundColor: '#4CAF50',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  },
+  createQueryButton: {
+    marginTop: '20px',
+    padding: '10px',
+    backgroundColor: '#2196F3',
     color: '#fff',
     border: 'none',
     borderRadius: '5px',

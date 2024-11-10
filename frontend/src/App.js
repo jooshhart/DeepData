@@ -5,6 +5,7 @@ import Queries from './pages/Queries';
 import Visuals from './pages/Visuals';
 import AuthPage from './pages/AuthPage';
 import Profile from './pages/Profile';
+import CreateQuery from './pages/createQuery';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { UserContext } from './context/userState';
@@ -25,6 +26,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Profile />} /> 
               <Route path="/home" element={<Homepage />} />
+              <Route path="/create" element={<CreateQuery />} />
               <Route path="/queries" element={<Queries />} />
               <Route path="/visuals" element={<Visuals />} />
             </Routes>
