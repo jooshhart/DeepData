@@ -51,6 +51,10 @@ const Profile = () => {
     navigate('/create');
   };
 
+  const goToMyQueries = () => {
+    navigate('/myqueries');
+  };
+
   return (
     <div style={styles.container}>
       {/* User Information Card */}
@@ -149,6 +153,7 @@ const Profile = () => {
       )}
 
       <button onClick={goToCreateQuery} style={styles.createQueryButton}>Create Query</button>
+      <button onClick={goToMyQueries} style={styles.myQueriesButton}>My Queries</button>
       <button onClick={logout} style={styles.logoutButton}>Logout</button>
     </div>
   );
@@ -198,6 +203,15 @@ const styles = {
     marginTop: '20px',
     padding: '10px',
     backgroundColor: '#2196F3',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  },
+  myQueriesButton: {
+    marginTop: '20px',
+    padding: '10px',
+    backgroundColor: '#FFA500',
     color: '#fff',
     border: 'none',
     borderRadius: '5px',

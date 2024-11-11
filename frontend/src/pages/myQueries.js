@@ -3,30 +3,30 @@ import axios from 'axios';
 import { UserContext } from '../context/userState';
 import { useNavigate } from 'react-router-dom';
 
-const Visuals = () => {
-  const [participatedQueries, setParticipatedQueries] = useState([]);
+const MyQueries = () => {
+  const [createdQueries, setCreatedQueries] = useState([]);
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchParticipatedQueries = async () => {
+    const fetchCreatedQueries = async () => {
       try {
         if (user) {
-          const response = await axios.get(`http://localhost:5000/api/query/participated/${user._id}`);
-          setParticipatedQueries(response.data);
+          const response = await axios.get(`http://localhost:5000/api/query/created/${user._id}`);
+          setCreatedQueries(response.data);
         }
       } catch (error) {
-        console.error('Error fetching participated queries:', error);
+        console.error('Error fetching created queries:', error);
       }
     };
-    fetchParticipatedQueries();
+    fetchCreatedQueries();
   }, [user]);
 
   return (
     <div>
-      <h1>Participated Queries</h1>
+      <h1>My Queries</h1>
       <div className="query-cards">
-        {participatedQueries.map((query) => (
+        {createdQueries.map((query) => (
           <div 
             key={query._id} 
             className="query-card" 
@@ -34,7 +34,6 @@ const Visuals = () => {
             style={{ cursor: 'pointer', border: '1px solid #ccc', padding: '1rem', margin: '1rem 0' }}
           >
             <h2>{query.queryName}</h2>
-            <p>Created by: {query.createdBy.userName}</p>
           </div>
         ))}
       </div>
@@ -42,4 +41,4 @@ const Visuals = () => {
   );
 };
 
-export default Visuals;
+export default MyQueries;

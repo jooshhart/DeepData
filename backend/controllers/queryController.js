@@ -131,4 +131,17 @@ const getParticipatedQueries = async (req, res) => {
   }
 };
 
-module.exports = { createQuery, addParticipantAnswer, getUnparticipatedQueries, getParticipatedQueries, getQueryById };
+const getCreatedQueries = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const queries = await Query.find(
+      { "createdBy.userId": {$in: [userId] } }, //only include queries where user has created
+      'queryName' // Only include queryName
+    );
+    res.status(200).json(queries);
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving created queries' });
+  }
+};
+
+module.exports = { createQuery, addParticipantAnswer, getUnparticipatedQueries, getParticipatedQueries, getQueryById, getCreatedQueries };

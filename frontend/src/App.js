@@ -8,6 +8,7 @@ import Profile from './pages/Profile';
 import CreateQuery from './pages/createQuery';
 import QueryDetails from './pages/queryDetails'
 import VisualDetails from './pages/visualDetails';
+import MyQueries from './pages/myQueries';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { UserContext } from './context/userState';
@@ -33,6 +34,7 @@ function App() {
               <Route path="/query/:id" element={<QueryDetails />} />
               <Route path="/visual/:id" element={<VisualDetails />} />
               <Route path="/visuals" element={<Visuals />} />
+              <Route path="/myqueries" element={<MyQueries />} />
             </Routes>
           </div>
           <Footer />
