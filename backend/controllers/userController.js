@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "8d16994523acce0346169ee912397bb058
 
 // Register User
 const registerUser = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, birthdate, gender, ethnicity, country } = req.body;
 
   try {
     const existingUser = await User.findOne({ username });
@@ -22,6 +22,10 @@ const registerUser = async (req, res) => {
       username,
       email,
       password: hashedPassword,
+      birthdate,
+      gender,
+      ethnicity,
+      country,
     });
 
     const savedUser = await newUser.save();

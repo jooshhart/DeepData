@@ -5,24 +5,25 @@ const AuthPage = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showSignUp, setShowSignUp] = useState(false); // State to toggle between Sign In and Sign Up
+  const [birthdate, setBirthdate] = useState('');
+  const [gender, setGender] = useState('');
+  const [ethnicity, setEthnicity] = useState('');
+  const [country, setCountry] = useState('');
+  const [showSignUp, setShowSignUp] = useState(false);
 
   const { login, register } = useContext(UserContext);
 
   const handleAuth = async (e) => {
     e.preventDefault();
     if (showSignUp) {
-      // If in Sign-Up mode
       try {
-        await register(username, email, password);
+        await register(username, email, password, birthdate, gender, ethnicity, country);
         console.log("User registered successfully");
-        // Optionally switch to Sign-In mode after successful registration
         setShowSignUp(false);
       } catch (error) {
         console.error("Error during registration:", error);
       }
     } else {
-      // If in Sign-In mode
       try {
         await login(username, password);
         console.log("User logged in successfully");
@@ -45,14 +46,60 @@ const AuthPage = () => {
           />
         </div>
         {showSignUp && (
-          <div>
-            <label>Email:</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
+          <>
+            <div>
+              <label>Email:</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Birthdate:</label>
+              <input
+                type="date"
+                value={birthdate}
+                onChange={(e) => setBirthdate(e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Gender:</label>
+              <select name="gender" value={gender} onChange={(e) => setGender(e.target.value)}>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Non-binary">Non-binary</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+            <div>
+              <label>Ethnicity:</label>
+              <select name="ethnicity" value={ethnicity} onChange={(e) => setEthnicity(e.target.value)}>
+                <option value="">Select Ethnicity</option>
+                <option value="Asian">Asian</option>
+                <option value="Black or African American">Black or African American</option>
+                <option value="Hispanic or Latino">Hispanic or Latino</option>
+                <option value="White">White</option>
+                <option value="Native American">Native American</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+            <div>
+              <label>Country:</label>
+              <select name="country" value={country} onChange={(e) => setCountry(e.target.value)}>
+                <option value="">Select Country</option>
+                <option value="United States">United States</option>
+                <option value="Canada">Canada</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="Australia">Australia</option>
+                <option value="India">India</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </>
         )}
         <div>
           <label>Password:</label>

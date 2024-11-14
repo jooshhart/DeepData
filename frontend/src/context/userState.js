@@ -42,14 +42,23 @@ export const UserProvider = ({ children }) => {
   };
 
   // Function to register a user
-  const register = async (username, email, password) => {
+  const register = async (username, email, password, birthdate, gender, ethnicity, country) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/users/register', { username, email, password });
+      const response = await axios.post('http://localhost:5000/api/users/register', {
+        username,
+        email,
+        password,
+        birthdate,
+        gender,
+        ethnicity,
+        country,
+      });
       console.log("User registered successfully:", response.data);
     } catch (error) {
       console.error("Registration failed:", error);
     }
   };
+  
 
   // Function to update the user
   const updateUser = async (updatedData) => {
