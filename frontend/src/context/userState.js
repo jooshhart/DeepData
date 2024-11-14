@@ -5,7 +5,7 @@ export const UserContext = createContext();
 
 const fetchUser = async (token, setUser, logout) => {
   try {
-    const response = await axios.get('http://localhost:5000/api/users/user', {
+    const response = await axios.get('https://deepdatavisuals.onrender.com/api/users/user', {
       headers: { Authorization: `Bearer ${token}` },
     });
     setUser(response.data.user);
