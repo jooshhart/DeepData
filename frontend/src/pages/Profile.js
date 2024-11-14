@@ -1,5 +1,6 @@
 // Profile.js
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
+import countrySelect from 'country-select-js';
 import { UserContext } from '../context/userState';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,6 +17,7 @@ const Profile = () => {
   const [isInfoCardExpanded, setIsInfoCardExpanded] = useState(false);
   const [isUpdateCardExpanded, setIsUpdateCardExpanded] = useState(false);
   const navigate = useNavigate();
+  const countryRef = useRef(null); // Reference to the country <select> element
 
   useEffect(() => {
     if (user) {
@@ -29,6 +31,13 @@ const Profile = () => {
       });
     }
   }, [user]);
+
+  useEffect(() => {
+    // Initialize country-select-js on the country <select> element
+    if (countryRef.current) {
+      countrySelect(countryRef.current);
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -117,7 +126,6 @@ const Profile = () => {
                 <option value="Female">Female</option>
                 <option value="Non-binary">Non-binary</option>
                 <option value="Other">Other</option>
-                <option value="Prefer not to say">Prefer not to say</option>
               </select>
             </div>
             <div style={styles.formGroup}>
@@ -128,21 +136,22 @@ const Profile = () => {
                 <option value="Black or African American">Black or African American</option>
                 <option value="Hispanic or Latino">Hispanic or Latino</option>
                 <option value="White">White</option>
-                <option value="Native American">Native American</option>
+                <option value="Native American or Alaska Native">Native American or Alaska Native</option>
+                <option value="Native Hawaiian or Other Pacific Islander">Native Hawaiian or Other Pacific Islander</option>
+                <option value="Middle Eastern or North African">Middle Eastern or North African</option>
+                <option value="Multiracial or Two or More Races">Multiracial or Two or More Races</option>
                 <option value="Other">Other</option>
-                <option value="Prefer not to say">Prefer not to say</option>
               </select>
             </div>
             <div style={styles.formGroup}>
               <label>Country:</label>
-              <select name="country" value={formData.country} onChange={handleChange}>
+              <select
+                name="country"
+                value={formData.country}
+                onChange={handleChange}
+                ref={countryRef}
+              >
                 <option value="">Select Country</option>
-                <option value="United States">United States</option>
-                <option value="Canada">Canada</option>
-                <option value="United Kingdom">United Kingdom</option>
-                <option value="Australia">Australia</option>
-                <option value="India">India</option>
-                <option value="Other">Other</option>
               </select>
             </div>
             <button type="button" onClick={handleUpdate} style={styles.updateButton}>

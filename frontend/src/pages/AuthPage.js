@@ -1,5 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { UserContext } from '../context/userState';
+import countrySelect from 'country-select-js';
 
 const AuthPage = () => {
   const [username, setUsername] = useState('');
@@ -10,6 +11,7 @@ const AuthPage = () => {
   const [ethnicity, setEthnicity] = useState('');
   const [country, setCountry] = useState('');
   const [showSignUp, setShowSignUp] = useState(false);
+  const selectRef = useRef(null);
 
   const { login, register } = useContext(UserContext);
 
@@ -32,6 +34,20 @@ const AuthPage = () => {
       }
     }
   };
+
+  useEffect(() => {
+    // Initialize country-select-js on the select element
+    const countrySelectInstance = countrySelect(selectRef.current);
+
+    // Add a change event listener to update the state when a country is selected
+    const handleCountryChange = (e) => setCountry(e.target.value);
+    selectRef.current.addEventListener('change', handleCountryChange);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      selectRef.current.removeEventListener('change', handleCountryChange);
+    };
+  }, []);
 
   return (
     <div style={styles.wrapper}>
@@ -71,7 +87,6 @@ const AuthPage = () => {
                 <option value="Female">Female</option>
                 <option value="Non-binary">Non-binary</option>
                 <option value="Other">Other</option>
-                <option value="Prefer not to say">Prefer not to say</option>
               </select>
             </div>
             <div>
@@ -82,21 +97,22 @@ const AuthPage = () => {
                 <option value="Black or African American">Black or African American</option>
                 <option value="Hispanic or Latino">Hispanic or Latino</option>
                 <option value="White">White</option>
-                <option value="Native American">Native American</option>
+                <option value="Native American or Alaska Native">Native American or Alaska Native</option>
+                <option value="Native Hawaiian or Other Pacific Islander">Native Hawaiian or Other Pacific Islander</option>
+                <option value="Middle Eastern or North African">Middle Eastern or North African</option>
+                <option value="Multiracial or Two or More Races">Multiracial or Two or More Races</option>
                 <option value="Other">Other</option>
-                <option value="Prefer not to say">Prefer not to say</option>
               </select>
             </div>
             <div>
               <label>Country:</label>
-              <select name="country" value={country} onChange={(e) => setCountry(e.target.value)}>
+              <select
+                ref={selectRef}
+                name="country"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+              >
                 <option value="">Select Country</option>
-                <option value="United States">United States</option>
-                <option value="Canada">Canada</option>
-                <option value="United Kingdom">United Kingdom</option>
-                <option value="Australia">Australia</option>
-                <option value="India">India</option>
-                <option value="Other">Other</option>
               </select>
             </div>
           </>

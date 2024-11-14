@@ -21,6 +21,7 @@
     "colors": "^1.4.0",
     "cookie-parser": "^1.4.7",
     "country-list": "^2.3.0",
+    "country-select-js": "^2.1.0",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "path": "^0.12.7",
