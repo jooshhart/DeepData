@@ -30,7 +30,7 @@ export const UserProvider = ({ children }) => {
   // Function to handle login
   const login = async (username, password) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', { username, password });
+      const response = await axios.post('https://deepdatavisuals.onrender.com/api/users/login', { username, password });
       const { token, user } = response.data;
       setToken(token);
       setUser(user);
