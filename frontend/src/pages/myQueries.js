@@ -12,7 +12,7 @@ const MyQueries = () => {
     const fetchCreatedQueries = async () => {
       try {
         if (user) {
-          const response = await axios.get(`http://localhost:5000/api/query/created/${user._id}`);
+          const response = await axios.get(`https://deepdatavisuals.onrender.com/api/query/created/${user._id}`);
           setCreatedQueries(response.data);
         }
       } catch (error) {

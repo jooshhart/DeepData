@@ -12,7 +12,7 @@ const Visuals = () => {
     const fetchParticipatedQueries = async () => {
       try {
         if (user) {
-          const response = await axios.get(`http://localhost:5000/api/query/participated/${user._id}`);
+          const response = await axios.get(`https://deepdatavisuals.onrender.com/api/query/participated/${user._id}`);
           setParticipatedQueries(response.data);
         }
       } catch (error) {

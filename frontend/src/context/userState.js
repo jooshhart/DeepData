@@ -44,7 +44,7 @@ export const UserProvider = ({ children }) => {
   // Function to register a user
   const register = async (username, email, password, birthdate, gender, ethnicity, country) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/users/register', {
+      const response = await axios.post('https://deepdatavisuals.onrender.com/api/users/register', {
         username,
         email,
         password,
@@ -63,7 +63,7 @@ export const UserProvider = ({ children }) => {
   // Function to update the user
   const updateUser = async (updatedData) => {
     try {
-      const response = await axios.patch(`http://localhost:5000/api/users/update/${user._id}`, updatedData, {
+      const response = await axios.patch(`https://deepdatavisuals.onrender.com/api/users/update/${user._id}`, updatedData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(response.data);  // Update the user state with the updated data

@@ -31,7 +31,7 @@ const QueryDetails = () => {
     const age = calculateAge(user.birthdate);
 
     try {
-      await axios.patch('http://localhost:5000/api/query/answer', {
+      await axios.patch('https://deepdatavisuals.onrender.com/api/query/answer', {
         queryId,
         userId: user._id,
         answer: selectedAnswer,

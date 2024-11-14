@@ -11,7 +11,7 @@ export const QueryProvider = ({ children }) => {
   // Function to create a new query
   const createQuery = async (queryInfo) => {
     try {
-      const { data } = await axios.post('http://localhost:5000/api/query/create', queryInfo);
+      const { data } = await axios.post('https://deepdatavisuals.onrender.com/api/query/create', queryInfo);
       setQueryData(data); // Assuming `setQueryData` is accessible here
       return { success: true, data };
     } catch (error) {
@@ -31,7 +31,7 @@ export const QueryProvider = ({ children }) => {
 
     try {
       // Make GET request to backend
-      const response = await axios.get(`http://localhost:5000/api/query/${queryId}`);
+      const response = await axios.get(`https://deepdatavisuals.onrender.com/api/query/${queryId}`);
       
       // Update state with response data
       setQueryData(response.data);

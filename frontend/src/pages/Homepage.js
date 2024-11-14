@@ -25,7 +25,7 @@ const Homepage = () => {
 
       const fetchAllUsers = async () => {
          try {
-            const response = await axios.get('http://localhost:5000/api/users/all');
+            const response = await axios.get('https://deepdatavisuals.onrender.com/api/users/all');
             const users = response.data;
 
             if (!Array.isArray(users)) {
