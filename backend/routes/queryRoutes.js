@@ -15,6 +15,6 @@ queryRouter.get('/participated/:userId', queryController.getParticipatedQueries)
 
 queryRouter.get('/:id', queryController.getQueryById)
 
-queryRouter.get('/created/:userid', queryController.getCreatedQueries)
+queryRouter.get('/created/:userId', queryController.getCreatedQueries)
 
 module.exports = queryRouter;
