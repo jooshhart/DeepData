@@ -139,7 +139,12 @@ const Profile = () => {
               <label>Country:</label>
               <CountryDropdown
                 value={formData.country}
-                onChange={handleChange} 
+                onChange={(value) =>
+                  setFormData((prevData) => ({
+                    ...prevData,
+                    country: value, // Directly update the 'country' field in formData
+                  }))
+                }
               />
             </div>
             <button type="button" onClick={handleUpdate} style={styles.updateButton}>

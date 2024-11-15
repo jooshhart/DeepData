@@ -93,7 +93,7 @@ const AuthPage = () => {
               <label>Country:</label>
               <CountryDropdown
                 value={country}
-                onChange={(e) => setCountry(e.target.value)} 
+                onChange={(val) => setCountry(val)} 
               />
             </div>
           </>
