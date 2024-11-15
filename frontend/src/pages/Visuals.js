@@ -5,6 +5,10 @@ import { useNavigate } from 'react-router-dom';
 
 const Visuals = () => {
   const [participatedQueries, setParticipatedQueries] = useState([]);
+  const [filteredQueries, setFilteredQueries] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(3);
+  const [searchTerm, setSearchTerm] = useState('');
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -22,11 +26,30 @@ const Visuals = () => {
     fetchParticipatedQueries();
   }, [user]);
 
+  useEffect(() => {
+    setFilteredQueries(
+      participatedQueries.filter(query =>
+        query.queryName.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [searchTerm, participatedQueries]);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentQueries = filteredQueries.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredQueries.length / itemsPerPage);
+
   return (
     <div>
-      <h1>Participated Queries</h1>
+      <input
+        type="text"
+        placeholder="Search Queries"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{ marginBottom: '1rem' }}
+      />
       <div className="query-cards">
-        {participatedQueries.map((query) => (
+        {currentQueries.map((query) => (
           <div 
             key={query._id} 
             className="query-card" 
@@ -37,6 +60,15 @@ const Visuals = () => {
             <p>Created by: {query.createdBy.userName}</p>
           </div>
         ))}
+      </div>
+      <div className="pagination">
+        <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
+          Previous
+        </button>
+        <span>Page {currentPage} of {totalPages}</span>
+        <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>
+          Next
+        </button>
       </div>
     </div>
   );
