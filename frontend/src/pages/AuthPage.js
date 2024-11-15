@@ -1,6 +1,6 @@
-import React, { useState, useContext, useRef, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
+import { CountryDropdown } from 'react-country-region-selector';
 import { UserContext } from '../context/userState';
-import countrySelect from 'country-select-js';
 
 const AuthPage = () => {
   const [username, setUsername] = useState('');
@@ -11,7 +11,6 @@ const AuthPage = () => {
   const [ethnicity, setEthnicity] = useState('');
   const [country, setCountry] = useState('');
   const [showSignUp, setShowSignUp] = useState(false);
-  const selectRef = useRef(null);
 
   const { login, register } = useContext(UserContext);
 
@@ -34,20 +33,6 @@ const AuthPage = () => {
       }
     }
   };
-
-  useEffect(() => {
-    // Initialize country-select-js on the select element
-    const countrySelectInstance = countrySelect(selectRef.current);
-
-    // Add a change event listener to update the state when a country is selected
-    const handleCountryChange = (e) => setCountry(e.target.value);
-    selectRef.current.addEventListener('change', handleCountryChange);
-
-    // Cleanup the event listener on component unmount
-    return () => {
-      selectRef.current.removeEventListener('change', handleCountryChange);
-    };
-  }, []);
 
   return (
     <div style={styles.wrapper}>
@@ -106,14 +91,10 @@ const AuthPage = () => {
             </div>
             <div>
               <label>Country:</label>
-              <select
-                ref={selectRef}
-                name="country"
+              <CountryDropdown
                 value={country}
-                onChange={(e) => setCountry(e.target.value)}
-              >
-                <option value="">Select Country</option>
-              </select>
+                onChange={(e) => setCountry(e.target.value)} 
+              />
             </div>
           </>
         )}

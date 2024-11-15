@@ -1,6 +1,6 @@
 // Profile.js
-import React, { useContext, useState, useEffect, useRef } from 'react';
-import countrySelect from 'country-select-js';
+import React, { useContext, useState, useEffect } from 'react';
+import { CountryDropdown } from 'react-country-region-selector';
 import { UserContext } from '../context/userState';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,7 +17,6 @@ const Profile = () => {
   const [isInfoCardExpanded, setIsInfoCardExpanded] = useState(false);
   const [isUpdateCardExpanded, setIsUpdateCardExpanded] = useState(false);
   const navigate = useNavigate();
-  const countryRef = useRef(null); // Reference to the country <select> element
 
   useEffect(() => {
     if (user) {
@@ -31,13 +30,6 @@ const Profile = () => {
       });
     }
   }, [user]);
-
-  useEffect(() => {
-    // Initialize country-select-js on the country <select> element
-    if (countryRef.current) {
-      countrySelect(countryRef.current);
-    }
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -145,14 +137,10 @@ const Profile = () => {
             </div>
             <div style={styles.formGroup}>
               <label>Country:</label>
-              <select
-                name="country"
+              <CountryDropdown
                 value={formData.country}
-                onChange={handleChange}
-                ref={countryRef}
-              >
-                <option value="">Select Country</option>
-              </select>
+                onChange={handleChange} 
+              />
             </div>
             <button type="button" onClick={handleUpdate} style={styles.updateButton}>
               Update
