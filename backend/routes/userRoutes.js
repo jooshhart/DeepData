@@ -15,6 +15,8 @@ userRouter.get('/user', userController.authenticateToken, userController.getUser
 userRouter.patch('/update/:id', userController.patchUser);
 
 // Get All Users
-userRouter.get('/all', userController.getAllUsers)
+userRouter.get('/all', userController.getAllUsers);
+
+userRouter.get('/confirm/:token', userController.confirmEmail);
 
 module.exports = userRouter;

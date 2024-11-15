@@ -3,6 +3,7 @@ const User = require('../models/userModel.js');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const ObjectId = mongoose.Types.ObjectId;
+const nodemailer = require('nodemailer');
 
 const JWT_SECRET = process.env.JWT_SECRET || "8d16994523acce0346169ee912397bb058bd254412028ecfb3e063c65419aeb6";
 
@@ -18,27 +19,68 @@ const registerUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create a JWT containing the user details
+    const tokenPayload = { username, email, password: hashedPassword, birthdate, gender, ethnicity, country };
+    const verificationToken = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '1h' });
+
+    // Generate a confirmation URL
+    const confirmationUrl = `${process.env.FRONTEND_URL}/confirm/${verificationToken}`;
+
+    // Send email using Nodemailer
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail', // You can use another email provider
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: '"Deep Data Visuals" <noreply@deepdatavisuals.com>',
+      to: email,
+      subject: "Email Confirmation",
+      html: `
+        <p>Welcome to Deep Data Visuals! It's a fortune to have you join us.</p>
+        <p>Please confirm your email by clicking the link below:</p>
+        <a href="${confirmationUrl}">Confirm Email</a>
+      `,
+    });
+
+    res.status(200).json({ message: "Confirmation email sent. Please check your inbox." });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const confirmEmail = async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const { username, email, password, birthdate, gender, ethnicity, country } = decoded;
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already confirmed." });
+    }
+
     const newUser = new User({
       username,
       email,
-      password: hashedPassword,
+      password,
       birthdate,
       gender,
       ethnicity,
       country,
     });
 
-    const savedUser = await newUser.save();
+    await newUser.save();
 
-    const token = jwt.sign({ userId: savedUser._id }, JWT_SECRET, { expiresIn: '1h' });
-
-    res.status(201).json({
-      message: "User registered successfully",
-      user: { id: savedUser._id, username: savedUser.username, email: savedUser.email },
-      token,
-    });
+    res.redirect(`${process.env.FRONTEND_URL}/login`);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(400).json({ message: "Invalid or expired token", error: error.message });
   }
 };
 
@@ -136,6 +178,7 @@ const getAllUsers = async (req, res) => {
 
 module.exports = {
   registerUser,
+  confirmEmail,
   loginUser,
   patchUser,
   authenticateToken,
