@@ -11,4 +11,4 @@
     So, if you experience any problems starting up in the website, this is because the server is starting up.
 
 ## Link
-    [DeepDataVisuals](https://deepdatavisual.onrender.com/)
+    [DeepDataVisuals](https://deepdatavisual.onrender.com)
